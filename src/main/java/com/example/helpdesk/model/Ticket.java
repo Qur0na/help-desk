@@ -1,8 +1,16 @@
 package com.example.helpdesk.model;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tickets")
@@ -12,15 +20,15 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, length = 120)
     private String title;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 2000)
     private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private TicketStatus status = TicketStatus.NEW;
+    private TicketStatus status;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -28,32 +36,22 @@ public class Ticket {
     @Column(nullable = false, length = 100)
     private String customerName;
 
-    // Пустой конструктор (требуется JPA)
-    public Ticket() {
-    }
-
-    // Конструктор для создания заявки
-    public Ticket(String title, String description, TicketStatus status, String customerName) {
-        this.title = title;
-        this.description = description;
-        this.status = status;
-        this.customerName = customerName;
-    }
-
-    // Автоматическая установка даты создания перед сохранением
     @PrePersist
-    public void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
+    public void beforeSave() {
         if (status == null) {
             status = TicketStatus.NEW;
         }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
-    // Getters и Setters
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
